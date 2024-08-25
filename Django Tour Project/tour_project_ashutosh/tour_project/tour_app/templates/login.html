@@ -1,0 +1,59 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy_Tours | Login </title>
+
+<style>
+
+    
+    input:hover {
+        background-color: #121312;
+        color: white;
+        
+      }
+</style>
+
+</head>
+<body>
+    <div class="container" style="box-sizing: border-box; width:fit-content;height:fit-content;background-color:cadetblue;
+     margin:auto;margin-top:5em;padding:1em 2em 2em ;border-radius: 15px 50px 30px 5px;">
+	<h3 id="form-title">LOGIN ACCOUNT</h3>
+	<form method="POST" action="">
+		{% csrf_token %}
+	<table >
+		<tr>
+			<td>
+				{{form.username.label}}
+			</td>
+			<td>
+				{{form.username}}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				{{form.password.label}}
+			</td>
+			<td>
+				{{form.password}}
+			</td>
+		</tr>
+	</table>
+	<div style="padding-left:6em; padding-top:2em;" class="login">
+		<input type="submit" value="Login">
+	</div>
+	
+	</form>
+
+</div>
+
+
+
+
+    
+</body>
+</html>
+

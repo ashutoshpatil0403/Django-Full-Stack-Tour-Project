@@ -1,0 +1,50 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-sticky" id="hari">
+  <div class="container">
+      <a class="navbar-brand" href="#">Happy_Tours</a>
+      {{ object.as_p }}
+      {% if request.user.is_authenticated %}
+          <b>Hello {{ request.user }}</b>
+      {% endif %}
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                  <a class="nav-link active hide" aria-current="page" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link hide3" href="/about" style="color:black">About Us</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link active hide1" aria-current="page" href="/confirm">Confirmed Bookings</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link active hide2" aria-current="page" href="/viewticket">View Tickets</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link hide3" href="/packages" style="color:black">Packages</a>
+              </li>
+              {% if request.user.is_authenticated %}
+                  <li class="nav-item">
+                      <a class="nav-link hide4" href="/logout">Logout</a>
+                  </li>
+              {% else %}
+                  <li class="nav-item">
+                      <a class="nav-link hide5" href="/signup">Register</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link hide6" href="/login">Login</a>
+                  </li>
+              {% endif %}
+          </ul>
+      </div>
+  </div>
+</nav>
+
+<script>
+  var dropDownValue = document.getElementById("dropDown");
+  dropDownValue.onchange = function() {
+      window.location.href = this.value;
+  };
+</script>

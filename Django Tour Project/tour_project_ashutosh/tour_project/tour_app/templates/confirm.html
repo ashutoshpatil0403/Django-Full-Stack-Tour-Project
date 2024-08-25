@@ -1,0 +1,188 @@
+
+{% extends "main.html" %}
+{% block content %}
+{% load static%}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/p.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Happy_Tours | Confirm </title>
+    <link rel="shortcut icon" href="favicon/favicon.ico">
+    <link rel="icon" type="image/gif" href="favicon/animated_favicon1.gif">
+    <style>
+      .hide2:hover{
+        background-color:burlywood;
+        border-radius: 8% 8% 8% 8%;      }
+      .hide:hover{
+        background-color:burlywood;
+        border-radius: 8% 8% 8% 8%;
+      }
+      .hide3:hover{
+        background-color:burlywood;
+        border-radius: 8% 8% 8% 8%;      }
+      .hide1{
+          display:none;
+      }
+      .hide4{
+          display:none;
+      }
+      .hide5{
+        display:none;
+    }
+    .hide6{
+        display:none;
+    }
+  </style>
+</head>
+<body>
+<div>
+    <a  href="/viewticket" class='btn btn-dark ' style="margin:3em 70em 2em;position:fixed;border:solid white 2px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path>
+      </svg>
+    </a>
+    <a  href="/user_book" class='btn btn-dark' style="margin:3em 68em;position:fixed;border:solid white 2px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"></path>
+      </svg>
+    </a>
+</div>
+
+{% for object in con_tic %}
+<div class="card" style="padding:2em;width:20em ;height:23em; display:inline-flex;margin-left:2em;margin-top:5em">
+  <img src="{{object.package_id.p1_img.url}}" class="card-img-top" alt="..." style="width:12em ;height:8em;" >
+    <div class="card-body">
+      <table>
+        <tbody>
+          <tr>
+            <td>Package :</td>
+            <td>{{ object.package_id.p1_name}}</td>
+          </tr>
+          <tr>
+            <td>Parson :</td>
+            <td>{{ object.name}}</td>
+          </tr>
+          <tr>
+            <td>Category :</td>
+            <td>{{ object.type}}</td>
+          </tr>
+          <tr>
+            <td>Seat No :</td>
+            <td>{{ object.seat_no}}</td>
+          </tr>
+          {% if object.type == 'Adults' %}
+          <tr>
+            <td>Price :</td>
+            <td>{{ object.Adult_price}}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td>Price :</td>
+            <td>{{ object.child_price}}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <form method="POST">
+              {% csrf_token %}  
+              <td><button id='rzp-button1{{forloop.counter}}' class="btn btn-primary" style="margin:auto;width:5em ;height:2em;">Pay</button></td>
+              <td>
+                <input type="hidden" name="con" id="amount{{forloop.counter}}" value="{% if object.type == 'Adults' %}{{object.Adult_price}}{% else%}{{object.child_price}}{% endif %}">
+                <input type="hidden" name="" id="{{object.id}}" value="{{object.id}}">
+              </td>
+            </form>
+              <td><a href="del/{{object.booking_id}}" class="btn btn-danger" style="width:5em ;height:2em;">Cancle</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+</div>
+{% endfor %}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  var globla_id = 0
+  var options = {
+    "key": "rzp_test_ZOXczyiJeOLC6f", // Enter the Key ID generated from the Dashboard
+    "amount": 100,
+    "currency": "INR",
+    "name":"CART GLORY",
+    "description": "HARI Paymets",
+    "image": "https://s3.amazonaws.com/rzp-mobile/images/rzp.jpg",
+    config: {
+      display: {
+        blocks: {
+          utib: { //name for Axis block
+            name: "Pay using Axis Bank",
+            instruments: [
+              {
+                method: "card",
+                issuers: ["UTIB"]
+              },
+              {
+                method: "netbanking",
+                banks: ["UTIB"]
+              },
+            ]
+          },
+          other: { //  name for other block
+            name: "Other Payment modes",
+            instruments: [
+              {
+                method: "card",
+                issuers: ["ICIC"]
+              },
+              {
+                method: 'netbanking',
+              },
+              {
+                method: "upi"
+                }
+            ]
+          }
+        },
+        sequence: ["block.utib", "block.other"],
+        preferences: {
+          show_default_blocks: false // Should Checkout show its default blocks?
+        }
+      }
+    },
+    "handler": function (response) {
+      console.log(response)
+      window.location.href=`http://127.0.0.1:8000/success/?payment_id=${response.razorpay_payment_id}&package_id=${globla_id}`
+      
+    },
+    "modal": {
+      "ondismiss": function () {
+        if (confirm("Are you sure, you want to close the form?")) {
+          txt = "You pressed OK!";
+          console.log("Checkout form closed by the user");
+          window.location.href=`http://127.0.0.1:8000/failed/`  
+        } else {
+          txt = "You pressed Cancel!";
+          console.log("Complete the Payment")
+        }
+      }
+    }
+  };
+ {% for i in con_tic %}
+  
+  document.getElementById('rzp-button1{{forloop.counter}}').onclick = function (e) {
+    getamount=document.getElementById('amount{{forloop.counter}}').value
+    options.amount=getamount *100
+    globla_id={{i.id}}
+    console.log(globla_id)
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+    e.preventDefault();
+  }
+  {% endfor %}
+</script>
+</body>
+</html>
+{% endblock%}
+

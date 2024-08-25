@@ -1,0 +1,78 @@
+{% comment %} {% extends "main.html" %} {% endcomment %}
+{% block content %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/p.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Happy_Tours | Packages </title>
+    <link rel="shortcut icon" href="favicon/favicon.ico">
+    <link rel="icon" type="image/gif" href="favicon/animated_favicon1.gif">
+</head>
+<body>
+    <div class="home_box" style="position: relative; text-align: center; color: white;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light items" style="position: fixed; top: 0; width: 100%; z-index: 10;">
+            <div class="container-fluid">
+                <span class="span">
+                    <a class="a" href="/" style="margin-right: 10px;">Home</a>
+                    <a class="a" href="/packages" style="margin-right: 10px;">Packages</a>
+                    <a class="a" href="/user_book" style="margin-right: 10px;">My Bookings</a>
+                    <a class="a" href="/about">About</a>
+                </span>
+                <form action="/search" method="get" style="display: inline;">
+                    {% csrf_token %}
+                    <input list="collections" name="search" placeholder="Packages">
+                    <datalist id="collections">
+                        {% for i in object_list %}
+                            <option value="{{ i.p1_name }}">
+                        {% endfor %}
+                    </datalist>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </nav>
+        <img src="{% static 'css/about.jpeg' %}" class="img" style="width: 100%; height: 50vh; object-fit: cover;">
+        <div class="container" style="position: relative; margin-top: 0%; z-index: 1;">
+            <div class="heading" style="text-align: center; color: white; background-color: rgba(0, 0, 0, 0.5); padding: 20px;">
+                <h1 class="hone" style="margin: 0; padding: 0;">Tour Packages</h1>
+                <span style="display: flex; gap: 5px; align-items: center; justify-content: center;">
+                    <a class="a" href="/" style="color: rgb(246, 246, 246); text-decoration: none;">Home</a>
+                    <p style="display: inline; color: rgb(246, 246, 246); margin: 0;"><--</p>
+                    <a class="a" href="/packages" style="color: rgb(246, 246, 246); text-decoration: none;">Packages</a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="deals" style="text-align: center; padding: 20px; background-color: #f8f9fa; margin-top: 2em;">
+        <h1>Today’s Hot Deals</h1>
+        <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely fast, day to.</p>
+    </div>
+
+    <div class="container mt-5" >
+        <div class="row" style="margin-top:35em">
+            {% for object in object_list %}
+                <div class="col-md-4 mb-4" style="padding-left: 4em;">
+                    <div class="card" style="padding: 2em; height: 23em;">
+                        <img src="{{ object.p1_img.url }}" class="card-img-top" alt="..." style="width: 100%; height: 10em; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ object.p1_name }}</h5>
+                            <p>${{ object.p1_price }}</p>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'select_package' object.package_id %}" class="btn btn-primary">Book a Trip</a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-primary">Book a Trip</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+</body>
+</html>
+{% endblock %}

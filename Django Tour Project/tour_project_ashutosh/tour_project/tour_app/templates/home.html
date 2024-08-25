@@ -1,0 +1,273 @@
+{% extends "main.html" %}
+{%block title%}Happy_Tours | Home {%endblock title%}
+{% block content %}
+{% load static %}
+
+<style>
+    .hide1 {
+        display: none;
+    }
+    .hide2 {
+        display: none;
+    }
+    
+    /* Slick Slider Styles */
+    .slick-slide {
+        margin: 0 10px; /* Space between slides */
+    }
+    .slick-slide img {
+        width: 100%;
+        height: auto;
+    }
+    .slick-dots {
+        bottom: -30px;
+    }
+
+    /* Card Styles */
+    .card {
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .card img {
+        width: 100%;
+        height: 200px; /* Adjust based on your needs */
+        object-fit: cover;
+    }
+    .card .name-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        text-align: center;
+        padding: 10px;
+        box-sizing: border-box;
+        display: none;
+    }
+    .card:hover .name-overlay {
+        display: block; /* Show the overlay on hover */
+    }
+
+    /* Prices Section Styles */
+    .prices-section {
+        margin: 4em 0em 5em;
+        text-align: center;
+    }
+    .prices-section h1 {
+        font-size: 2.5em;
+        margin-bottom: 0.5em;
+    }
+    .prices-section p {
+        color: darkgrey;
+        font-size: 1.1em;
+        margin-bottom: 2em;
+    }
+    .price-item {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 1em;
+    }
+
+    /* Position the form at the bottom right corner */
+    .image-container {
+        position: relative;
+    }
+        /*{% comment %} display: inline-block; {% endcomment %}
+    } */
+    .image-container img {
+        width: 100%;
+        height: auto;
+    }
+    
+    .form-container {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 300px;
+        width: 100%;
+    }
+    .form-container label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .form-container input,
+    .form-container select,
+    .form-container button {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+
+    .button-container {
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        /* Adjust positioning if needed */
+        margin-top: -20px; /* Adjust this value as needed */
+    }
+    .custom-btn {
+        width: 10em; /* Adjust the width as needed */
+        background-color: orange;
+        border: 2px solid orange; /* Change this to your desired border width */
+        font-size: 1.2em; /* Adjust font size if needed */
+        padding: 10px 20px; /* Adjust padding if needed */
+        color: white; /* Ensure the text color contrasts with the background */
+        text-align: center;
+        display: inline-block;
+        border-radius: 5px; /* Optional: adjust for rounded corners */
+        text-decoration:none;
+     } /* Remove underline *
+    }
+</style>
+
+<!-- Slick Slider CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+
+<div class="image-container">
+    <img src="{% static 'css/home.png' %}">
+    <div class="button-container">
+        <a href="/packages" class="custom-btn">Book Now</a>
+    </div>
+    
+    
+    <!-- Form container -->
+    <div class="form-container">
+        <form method="POST" action="{% url 'search_package_view' %}">
+            {% csrf_token %}
+            <label for="searching_date">Travel Date:</label>
+            <input type="date" id="searching_date" name="searching_date" required>
+            <script>
+                // Get today's date in yyyy-mm-dd format
+                var today = new Date().toISOString().split('T')[0];
+                // Set the min attribute of the date input to today's date
+                document.getElementById('searching_date').setAttribute('min', today);
+            </script>
+            <div class="col-md-6">
+                <label for="fromPlace" class="form-label">Package Name</label>
+                <select id="fromPlace" class="form-select" name="pak" required>
+                    <option value="" disabled selected>Package</option>
+                    {% for package in package_obj %}
+                        {% if  package.object.trending %}
+                            <option value="{{  package.object.pk }}">{{  package.object.p1_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">
+                    Please select a place.
+                </div>
+            </div>
+
+            <label for="pak">Pickup Location:</label>
+            <input type="text" id="pak" name="searching_pickup" placeholder="Enter Pickup!" required>
+
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<div style="margin-top:4em;">
+    <h1 style="text-align: center; font-size:2.5em">Popular Destinations</h1>
+    <p style="text-align: center; color: darkgrey; font-size:1.1em">We all live in an age that belongs to the young at heart. Life that is becoming extremely fast, day.</p>
+</div>
+
+<!-- Slick Slider Container for Popular Destinations -->
+<div class="slider-popular" style="margin-top: 2em;">
+    {% for i in package_obj %}
+        {% if i.object.trending %}
+            <div class="card">
+                <img src="{{ i.object.p1_img.url }}" alt="{{ i.object.p1_name }}">
+                <div class="name-overlay">
+                    {{ i.object.p1_name }}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Prices Section -->
+<div class="prices-section">
+    <h1>We Provide Affordable Prices</h1>
+    <p>Well educated, intellectual people, especially scientists at all times demonstrate considerably.</p>
+
+    <!-- Slick Slider Container for Prices -->
+    <div class="slider-prices">
+        {% for j in package_obj %}
+            <div class="price-item">
+                {{ j.object.p1_name }} - Price: {{ j.object.p1_price }} $
+            </div>
+        {% empty %}
+            <p>No trending packages available.</p>
+        {% endfor %}
+    </div>
+</div>
+<!-- Footer Section -->
+<footer style="background-color:black; padding: 10px 0; text-align: center; border-top: 1px solid #ddd;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 15px;">
+        <!-- Footer Content -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="color:white">Contact Us</h3>
+            <p style="color:white">Email: ashutoshpatil0403@gmail.com</p>
+            <p style="color:white">Phone: +91-7249024068</p>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'home' %}" style="margin: 0 15px; text-decoration: none; color: #007bff;">Home</a>
+            <a href="{% url 'about' %}" style="margin: 0 15px; text-decoration: none; color: #007bff;">About Us</a>
+            <a href="{% url 'package' %}" style="margin: 0 15px; text-decoration: none; color: #007bff;">Services</a>
+            <a href="{% url 'contact' %}" style="margin: 0 15px; text-decoration: none; color: #007bff;">Contact</a>
+        </div>
+
+        <!-- Footer Copyright -->
+        <div style="font-size: 0.9em; color: #6c757d;">
+            <p >&copy; {{ current_year }} Happy_Tours. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+<!-- Slick Slider JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<script>
+    $(document).ready(function(){
+        // Initialize Slick Slider for Popular Destinations
+        $('.slider-popular').slick({
+            infinite: true,
+            slidesToShow: 3,  // Number of cards to show at a time
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            dots: true,
+            arrows: true  // Show navigation arrows
+        });
+
+        // Initialize Slick Slider for Prices
+        $('.slider-prices').slick({
+            infinite: true,
+            slidesToShow: 3,  // Number of cards to show at a time
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            dots: true,
+            arrows: true  // Show navigation arrows
+        });
+    });
+</script>
+
+
+{% endblock %}

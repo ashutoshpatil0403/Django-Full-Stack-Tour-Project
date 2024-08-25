@@ -1,0 +1,270 @@
+{% extends "main.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy_Tours | Booking </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+      /* Keyframe animations for bus movements and bouncing */
+      @keyframes moveBusLeftToRight { 0% { transform: translateX(-150px); } 100% { transform: translateX(100vw); } }
+      @keyframes moveBusTopToBottom { 0% { transform: translateY(-150px); } 100% { transform: translateY(100vh); } }
+      @keyframes moveBusBottomToTop { 0% { transform: translateY(100vh); } 100% { transform: translateY(-150px); } }
+      @keyframes moveBusDiagonal { 0% { transform: translate(-150px, -150px); } 100% { transform: translate(100vw, 100vh); } }
+      @keyframes moveBusDiagonalReverse { 0% { transform: translate(-150px, 100vh); } 100% { transform: translate(100vw, -150px); } }
+      @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-30px); } 60% { transform: translateY(-15px); } }
+      @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+      .form-container {
+          margin: 2em auto;
+          padding: 1.5em;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          max-width: 800px;
+          background-color: #f8f9fa;
+          position: relative;
+          overflow: hidden;
+      }
+      .form-control, .form-select { animation: wobble 1s ease-in-out; }
+      .btn-primary { animation: pulse 1.5s infinite; }
+      .animated-background {
+          background: url('https://via.placeholder.com/1500x1000?text=Travel') no-repeat center center;
+          background-size: cover;
+          height: 100vh;
+          position: relative;
+          overflow: hidden;
+      }
+      .bus-container {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          pointer-events: none;
+      }
+      .bus {
+          position: absolute;
+          font-size: 2rem;
+          color: #f39c12;
+      }
+      .bus1 { animation: moveBusLeftToRight 10s linear infinite; left: -150px; top: 20%; }
+      .bus2 { animation: moveBusTopToBottom 8s linear infinite; left: 20%; top: -150px; }
+      .bus3 { animation: moveBusBottomToTop 12s linear infinite; left: 60%; top: 100vh; }
+      .bus4 { animation: moveBusDiagonal 15s linear infinite; left: -150px; top: -150px; }
+      .bus5 { animation: moveBusDiagonalReverse 15s linear infinite; left: -150px; top: 100vh; }
+      .bus6 { animation: bounce 2s infinite; left: 30%; top: 30%; }
+      .bus7 { animation: rotate 10s linear infinite; left: 70%; top: 10%; }
+
+      .seat-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
+          max-width: 400px;
+          margin: 0 auto;
+          height: 150px;
+          overflow-y: auto;
+      }
+      .seat-item {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        font-size: 1rem;
+        color: #212529;
+    }
+    
+    .seat-item.available {
+        background-color: #e9ecef;
+    }
+    
+    .seat-item.selected {
+        background-color: #007bff;
+        color: #fff;
+        transform: scale(1.1);
+    }
+    
+    .seat-item.unavailable {
+        background-color: #d6d6d6;
+        cursor: not-allowed;
+    }
+    
+    .seat-item:disabled {
+        cursor: not-allowed;
+    }
+    
+  </style>
+</head>
+<body>
+  
+  <div class="animated-background">
+    <div class="container">
+      <form class="row g-3 needs-validation form-container" novalidate method="POST" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <div class="col-md-6">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="fullName" name="fname" placeholder="Enter Full Name" required>
+            <div class="invalid-feedback">
+                Please provide your full name.
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="fromPlace" class="form-label">From Location</label>
+            <select id="fromPlace" class="form-select" name="from_place" required>
+                <option value="" disabled selected>Select Pickup!</option>
+                {% for i in from_places %}
+                    <option value="{{ i.pk }}">{{ i.place_name }}</option>
+                {% endfor %}
+            </select>
+            <div class="invalid-feedback">
+                Please select a place.
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label for="phoneNumber" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phoneNumber" name="phone" pattern="\d{10}" maxlength="10" required>
+            <div class="invalid-feedback">
+                Please enter a valid phone number (10 digits).
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label for="ageCategory" class="form-label">Age Category</label>
+            <select id="ageCategory" class="form-select" name="type" required>
+                <option value="" disabled selected>Select Age Category</option>
+                <option value="Adults">Adult</option>
+                <option value="child">Child</option>
+            </select>
+            <div class="invalid-feedback">
+                Please select an age category.
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label for="travel_date" class="form-label">Travel Date</label>
+            <input type="date" id="travel_date" class="form-control" name="travel_date" required>
+            <div class="invalid-feedback">
+                Enter a correct date.
+            </div>
+        </div>
+
+        <script>
+            // Set the minimum date to today
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('travel_date').setAttribute('min', today);
+
+            // Handle travel date change
+            document.getElementById('travel_date').addEventListener('change', function () {
+                var selectedDate = this.value;
+                var packageId = "{{ pkg.package_id }}";  // Use Django template to get package ID
+                fetch(`/packages/${packageId}?travel_date=${selectedDate}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    updateSeats(data);
+                })
+                .catch(error => console.error('Error fetching seat data:', error));
+            });
+
+            function updateSeats(data) {
+                const seatContainer = document.querySelector('.seat-container');
+                seatContainer.innerHTML = ''; // Clear previous seats
+                data.total_seat.forEach(seat => {
+                    if (data.seat_num.includes(seat)) {
+                        seatContainer.innerHTML += `<div class="seat-item unavailable" data-value="${seat}" disabled>${seat}</div>`;
+                    } else {
+                        seatContainer.innerHTML += `<div class="seat-item available" data-value="${seat}">${seat}</div>`;
+                    }
+                });
+            
+                document.querySelectorAll('.seat-item.available').forEach(item => {
+                    item.addEventListener('click', function () {
+                        document.querySelectorAll('.seat-item').forEach(el => el.classList.remove('selected'));
+                        this.classList.add('selected');
+                        document.getElementById('selectedSeat').value = this.dataset.value;
+                    });
+                });
+            }
+            
+
+        </script>
+
+        <div class="col-md-12">
+            <div class="seat-container">
+                <!-- Seats will be dynamically added here -->
+            </div>
+            <input type="hidden" id="selectedSeat" name="seat" required>
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Submit Form</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="bus-container">
+    <i class="fas fa-bus bus bus1"></i>
+    <i class="fas fa-bus bus bus2"></i>
+    <i class="fas fa-bus bus bus3"></i>
+    <i class="fas fa-bus bus4"></i>
+    <i class="fas fa-bus bus5"></i>
+    <i class="fas fa-bus bus6"></i>
+    <i class="fas fa-bus bus7"></i>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+  <script>
+      var input = document.querySelector("#phoneNumber");
+      window.intlTelInput(input, {
+          initialCountry: "auto",
+          geoIpLookup: function(success, failure) {
+              fetch('https://ipinfo.io', {
+                  headers: { 'Authorization': 'Bearer YOUR_TOKEN' }
+              })
+              .then(response => response.json())
+              .then(data => success(data.country))
+              .catch(() => success("us"));
+          }
+      });
+
+      function validateForm() {
+          var seat = document.getElementById('selectedSeat').value;
+          if (!seat) {
+              alert("Please select a seat.");
+              return false;
+          }
+          return true;
+      }
+
+      // Bootstrap form validation
+      (function() {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms)
+          .forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+      })();
+  </script>
+</body>
+</html>
+{% endblock %}
